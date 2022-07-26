@@ -288,7 +288,7 @@ pub struct AuthorityState {
     pub event_handler: Option<Arc<EventHandler>>,
 
     /// The checkpoint store
-    pub(crate) checkpoints: Option<Arc<Mutex<CheckpointStore>>>,
+    pub checkpoints: Option<Arc<Mutex<CheckpointStore>>>,
 
     // Structures needed for handling batching and notifications.
     /// The sender to notify of new transactions
@@ -339,12 +339,6 @@ impl AuthorityState {
             let transaction_info = self.make_transaction_info(&transaction_digest).await?;
             return Ok(transaction_info);
         }
-
-        // Validators should never sign an external system transaction.
-        fp_ensure!(
-            !transaction.data.kind.is_system_tx(),
-            SuiError::InvalidSystemTransaction
-        );
 
         if self.halted.load(Ordering::SeqCst) {
             // TODO: Do we want to include the new validator set?
